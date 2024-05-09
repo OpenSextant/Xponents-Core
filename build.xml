@@ -1,0 +1,47 @@
+<project default="setup">
+    <property name="java.resources" value="${basedir}/src/main/resources"/>
+    <property name="tmp" value="${basedir}/tmp"/>
+    <property name="geonames.resources" value="${java.resources}/geonames.org"/>
+    <property name="pylib.resources" value="${basedir}/src/main/python/opensextant/resources"/>
+
+    <target name="setup" depends="get-meta,copy-resources,unpack-langid"/>
+
+    <target name="unpack-langid">
+        <unzip src="${basedir}/etc/langdetect-profiles-v3.zip" dest="${basedir}/src/test/resources"/>
+    </target>
+
+    <target name="get-meta">
+
+        <mkdir dir="${basedir}/etc"/>
+        <mkdir dir="${geonames.resources}"/>
+        <mkdir dir="${pylib.resources}"/>
+        <mkdir dir="${pylib.resources}/geonames.org"/>
+        <mkdir dir="${tmp}"/>
+
+        <get src="http://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt" dest="${java.resources}" verbose="true"
+             usetimestamp="true"/>
+        <get src="http://download.geonames.org/export/dump/admin1CodesASCII.txt" dest="${geonames.resources}"
+             verbose="true" usetimestamp="true"/>
+        <get src="http://download.geonames.org/export/dump/timeZones.txt" dest="${geonames.resources}" verbose="true"
+             usetimestamp="true"/>
+        <get src="http://download.geonames.org/export/dump/countryInfo.txt" dest="${geonames.resources}" verbose="true"
+             usetimestamp="true"/>
+        <get src="http://download.geonames.org/export/dump/cities15000.zip" dest="${tmp}" verbose="true"
+             usetimestamp="true"/>
+        <unzip src="${tmp}/cities15000.zip" dest="${geonames.resources}"/>
+    </target>
+
+    <target name="copy-resources">
+        <copy file="${java.resources}/us-state-metadata.csv" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/country-names-2015.csv" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/country-names-2021.csv" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/geocoord_patterns.cfg" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/datetime_patterns.cfg" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/poli_patterns.cfg" todir="${pylib.resources}"/>
+        <copy file="${java.resources}/ISO-639-2_utf-8.txt" todir="${pylib.resources}"/>
+
+        <copy file="${geonames.resources}/cities15000.txt" todir="${pylib.resources}/geonames.org/"/>
+        <copy file="${geonames.resources}/admin1CodesASCII.txt" todir="${pylib.resources}/geonames.org/"/>
+    </target>
+
+</project>

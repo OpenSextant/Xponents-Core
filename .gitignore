@@ -1,0 +1,57 @@
+#Misc:
+.DS_Store
+release
+piplib
+maven-repo/
+dist/
+
+src/main/resources/geonames.org/
+src/main/resources/ISO-639-2_utf-8.txt
+etc/langdetect
+src/test/resources/langdetect
+
+
+#Maven output
+target/
+#  TODO can we remove this?:
+dist/
+build/
+bin/
+log
+logs
+export
+results/
+build.properties
+
+#Build files
+#Eclipse
+.classpath
+.project
+.settings/
+.pydevproject
+
+#IntelliJ
+/out/
+*.iml
+
+/*.ipr
+/*.iws
+/.idea/
+.idea/
+*.ipr
+*.iws
+
+#Netbeans
+nb-configuration.xml
+nbactions*.xml
+nbproject/
+
+#If files with these extensions are needed, they can be added manually.
+*.jar
+*.war
+*.zip
+*.pyc
+
+# Solr indices:
+index/
+*.sqlite

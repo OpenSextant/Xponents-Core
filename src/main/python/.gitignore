@@ -1,0 +1,6 @@
+*.pyc
+chardet
+pysolr.py
+build
+dist
+*.egg-info
