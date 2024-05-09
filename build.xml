@@ -40,8 +40,10 @@
         <copy file="${java.resources}/poli_patterns.cfg" todir="${pylib.resources}"/>
         <copy file="${java.resources}/ISO-639-2_utf-8.txt" todir="${pylib.resources}"/>
 
-        <copy file="${geonames.resources}/cities15000.txt" todir="${pylib.resources}/geonames.org/"/>
-        <copy file="${geonames.resources}/admin1CodesASCII.txt" todir="${pylib.resources}/geonames.org/"/>
+        <copy todir="${pylib.resources}/geonames.org">
+            <fileset dir="${geonames.resources}"/>
+        </copy>
+
     </target>
 
 </project>

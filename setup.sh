@@ -13,7 +13,7 @@ ant setup
 # Python setup.
 msg "Build Python libraries"
 unset PYTHONPATH
-PYSRC=./src/main/python
+PYSRC=$PWD/src/main/python
 if [ -d "$PYSRC/dist" ]; then
   rm -f $PYSRC/dist/*
 fi
@@ -23,6 +23,14 @@ msg "Install Python resources"
 pip3 install -U --target ../piplib lxml bs4 arrow requests pyshp pycountry \
   ./src/main/python/dist/opensextant-1.5*.tar.gz
 
+export PYTHONPATH=$PYSRC:$PWD/../piplib
+mkdir -p ./doc/python
+pushd ./doc/python
+pydoc3 -w opensextant \
+   opensextant.xlayer opensextant.utility \
+   opensextant.phonetics  opensextant.advas_phonetics \
+   opensextant.gazetteer opensextant.extractors \
+   opensextant.TaxCat opensextant.FlexPat
 
 msg Done
 
