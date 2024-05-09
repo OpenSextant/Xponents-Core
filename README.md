@@ -21,12 +21,13 @@ The major data classes cover geography concepts as well as data processing/extra
 
 The `opensextant` python libary offers a similar collection of classes although its not on parity with the Java core here.
 
+Additional utilities under `org.opensextant.util`
 
-* FileUtility - dictionary loading, filename tests and tools.  Such things are beyond common resources such as Apache Commons. 
-* GeodeticUtility - a convenience library for validating Basics objects and other primitives checks for XY-coordinate systems. 
+* `FileUtility` - dictionary loading, filename tests and tools.  Such things are beyond common resources such as Apache Commons. 
+* `GeodeticUtility` - a convenience library for validating Basics objects and other primitives checks for XY-coordinate systems. 
   Limited support for geohashing, as the main use of geohashing in extraction work is inferring precision.
-* GeonamesUtility - a library of tools for testing Geonames-like metadata (e.g., feature codes, types, etc). 
-* TextUtils and UnicodeTextUtils - a wide range of text scrubbing routines not commonly found in other open source libraries.
+* `GeonamesUtility` - a library of tools for testing Geonames-like metadata (e.g., feature codes, types, etc). 
+* `TextUtils` - a wide range of text scrubbing routines not commonly found in other open source libraries.
 
 ## Usage
 
@@ -37,7 +38,6 @@ a convenient way to play with the test tools
 
 After checkout, first build Xponents Core API (opensextant-xponents-core)
 This is the foundation and utilities for the tagger/geocoder SDK (oensextant-xponents)
-
 
 1. Setup project.
 
@@ -53,7 +53,7 @@ This is the foundation and utilities for the tagger/geocoder SDK (oensextant-xpo
   mvn install
 ```
 
-3. Publish Release
+## Publishing a Release
 
 Update RELEASE.md, the push the Maven artifacts:
 

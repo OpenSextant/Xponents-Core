@@ -11,3 +11,6 @@ logging_args="-Dlogback.configurationFile=$XP/etc/logback.xml"
 java  $xponents_args $logging_args -cp $CLASSPATH \
   org.codehaus.groovy.tools.GroovyStarter --main groovy.ui.GroovyMain \
   $XP/script/XponentsCore.groovy  "$@"
+
+echo "See Results in ./results/"
+ls -1 ./results/
