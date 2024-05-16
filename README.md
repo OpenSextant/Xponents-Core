@@ -58,9 +58,10 @@ This is the foundation and utilities for the tagger/geocoder SDK (oensextant-xpo
 Update RELEASE.md, the push the Maven artifacts:
 
 ```
+  mvn javadoc:javadoc
   mvn clean deploy -P release
   
-  mvn javadoc:javadoc
+  # Repeat above until successful -- Javadoc or other errors should be ironed out before final commit.
   cp -r ./target/site/apidocs ./doc/
   # then commit;  github site updates in 10 min
 ```
