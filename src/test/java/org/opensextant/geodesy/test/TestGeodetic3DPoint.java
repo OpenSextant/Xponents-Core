@@ -12,6 +12,7 @@ import org.opensextant.geodesy.Geodetic2DPoint;
 import org.opensextant.geodesy.Geodetic3DPoint;
 import org.opensextant.geodesy.Latitude;
 import org.opensextant.geodesy.Longitude;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestGeodetic3DPoint extends TestCase {
 
@@ -55,85 +56,85 @@ public class TestGeodetic3DPoint extends TestCase {
         }
     }
 
-	/**
+    /**
      * This method performs format conversions with string constructors in degrees and dms
      */
     public void testRandomEquals() {
-		for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             Geodetic3DPoint a1 = randomGeoPoint(r);
-			Geodetic3DPoint a2 = new Geodetic3DPoint(a1.getLongitude(), a1.getLatitude(), a1.getElevation());
-			// note by making equals() work in round off errors (such as in this case) using Angle.equals() vs phi1=phi2 && lamb1==lamb2
-			// but break contract in hashCode such that a.equals(b) -> true but hashCode(a) may not equal hashCode(b)
-			assertEquals(a1, a2);
-			assertEquals(a1.hashCode(), a2.hashCode());
+            Geodetic3DPoint a2 = new Geodetic3DPoint(a1.getLongitude(), a1.getLatitude(), a1.getElevation());
+            // note by making equals() work in round off errors (such as in this case) using Angle.equals() vs phi1=phi2 && lamb1==lamb2
+            // but break contract in hashCode such that a.equals(b) -> true but hashCode(a) may not equal hashCode(b)
+            assertEquals(a1, a2);
+            assertEquals(a1.hashCode(), a2.hashCode());
 
-			// for symmetric tests to work elevation must be non-zero
-			final double elevation = a1.getElevation();
-			if (elevation == 0.0 || Math.abs(elevation) < 1e-8) a1.setElevation(1234.5);
+            // for symmetric tests to work elevation must be non-zero
+            final double elevation = a1.getElevation();
+            if (elevation == 0.0 || Math.abs(elevation) < 1e-8) a1.setElevation(1234.5);
 
-			// test symmetric equals tests a.equals(b) -> b.equals(a)
-			Geodetic2DPoint pt2 = new Geodetic2DPoint(a1.getLongitude(), a1.getLatitude());
-			assertFalse(pt2.equals(a1));
-			assertFalse(a1.equals(pt2));
-			a1.setElevation(0);
-			assertEquals(pt2, a1); // pt2.equals(al) -> a1.equals(pt2)
-			assertEquals(a1, pt2);
-		}
+            // test symmetric equals tests a.equals(b) -> b.equals(a)
+            Geodetic2DPoint pt2 = new Geodetic2DPoint(a1.getLongitude(), a1.getLatitude());
+            assertNotEquals(pt2, a1);
+            assertNotEquals(a1, pt2);
+            a1.setElevation(0);
+            assertEquals(pt2, a1); // pt2.equals(al) -> a1.equals(pt2)
+            assertEquals(a1, pt2);
+        }
     }
 
-	private final Geodetic3DPoint a = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31);
-	private final Geodetic3DPoint b = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31);
-	private final Geodetic3DPoint c = new Geodetic3DPoint(new Longitude(-1.001), new Latitude(1), 31);
-	private final Geodetic3DPoint d = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31.001);
+    private final Geodetic3DPoint a = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31);
+    private final Geodetic3DPoint b = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31);
+    private final Geodetic3DPoint c = new Geodetic3DPoint(new Longitude(-1.001), new Latitude(1), 31);
+    private final Geodetic3DPoint d = new Geodetic3DPoint(new Longitude(-1), new Latitude(1), 31.001);
 
-	public void testEquals() {
-		// test equality with known geo-points
-		assertEquals(a, b);
-		assertFalse(a.equals(c));
-		assertFalse(a.equals(d));
-		assertFalse(c.equals(d));
+    public void testEquals() {
+        // test equality with known geo-points
+        assertEquals(a, b);
+        assertNotEquals(a, c);
+        assertNotEquals(a, d);
+        assertNotEquals(c, d);
 
-		// test equality with any possible round off errors
-		Geodetic3DPoint a2 = new Geodetic3DPoint(new Longitude(Math.toRadians(a.getLongitude().inDegrees())),
-									new Latitude(Math.toRadians(a.getLatitude().inDegrees())), a.getElevation());
-		assertEquals(a, a2);
-		assertEquals(a.hashCode(), a2.hashCode());
+        // test equality with any possible round off errors
+        Geodetic3DPoint a2 = new Geodetic3DPoint(new Longitude(Math.toRadians(a.getLongitude().inDegrees())),
+                new Latitude(Math.toRadians(a.getLatitude().inDegrees())), a.getElevation());
+        assertEquals(a, a2);
+        assertEquals(a.hashCode(), a2.hashCode());
 
-		// approximate equals test for elevations up to 3 decimal places
-		Geodetic3DPoint a3 = new Geodetic3DPoint(a.getLongitude(), a.getLatitude(), a.getElevation() + 10e-6);
-		assertEquals(a, a3);
-		assertEquals(a.hashCode(), a3.hashCode());
-	}
+        // approximate equals test for elevations up to 3 decimal places
+        Geodetic3DPoint a3 = new Geodetic3DPoint(a.getLongitude(), a.getLatitude(), a.getElevation() + 10e-6);
+        assertEquals(a, a3);
+        assertEquals(a.hashCode(), a3.hashCode());
+    }
 
-	public void testNullCompare() {
-		Geodetic3DPoint other = null;
-		assertFalse(a.equals(other));
-		Geodetic2DPoint p2 = null;
-		assertFalse(a.equals(p2));
-	}
+    public void testNullCompare() {
+        Geodetic3DPoint other = null;
+        assertNotEquals(a, other);
+        Geodetic2DPoint p2 = null;
+        assertNotEquals(a, p2);
+    }
 
     /**
      * Test 2d vs 3d points with 3d elavations at/close to 0
      */
     public void testMismatchedEquals() {
         Geodetic2DPoint p1 = makePoint(-81.9916466079043, 29.9420387052815, 5000.1);
-		Geodetic2DPoint p2 = makePoint(-81.9916466079043, 29.9420387052815, 0.0);
+        Geodetic2DPoint p2 = makePoint(-81.9916466079043, 29.9420387052815, 0.0);
         if (p1.equals(p2)) fail("different elevation but equals() == true");
         if (p2.equals(p1)) fail("different elevation but equals() == true");
-		Geodetic2DPoint p3 = makePoint(-81.9916466079043, 29.9420387052815);
+        Geodetic2DPoint p3 = makePoint(-81.9916466079043, 29.9420387052815);
         assertEquals("2d with elev=0 and 3d point same lat/lon", p2, p3);
         assertEquals("2d with elev=0 and 3d point same lat/lon", p3, p2);
-		Geodetic2DPoint p4 = makePoint(-81.9916466079043, 29.9420387052815, 1e-6);
+        Geodetic2DPoint p4 = makePoint(-81.9916466079043, 29.9420387052815, 1e-6);
         //assertEquals(p3, new Geodetic2DPoint(p4.getLongitude(), p4.getLatitude()));
         assertEquals("3d with elev=1e-4 and 3d point same lat/lon", p2, p4);
         assertEquals("3d with elev=1e-4 and 3d point same lat/lon", p4, p2);
         assertEquals("3d with elev=1e-4 and 3d point same lat/lon", p3, p4);
     }
 
-	public void testHashCode() {
-		assertEquals(a.hashCode(), b.hashCode());
-		assertTrue(a.hashCode() != c.hashCode()); // this test isn't required by equals-hashCode contract but by how the hashCode is computed
-	}
+    public void testHashCode() {
+        assertEquals(a.hashCode(), b.hashCode());
+        assertTrue(a.hashCode() != c.hashCode()); // this test isn't required by equals-hashCode contract but by how the hashCode is computed
+    }
 
     public void testToString() {
         Geodetic3DPoint p = TestGeoPoint.randomGeodetic3DPoint(r);
@@ -145,7 +146,7 @@ public class TestGeodetic3DPoint extends TestCase {
 
         // System.out.println("base=" + base + " pre=" + prefix + " letter=" + letter);
 
-        for(int i=0; i < 6; i++) {
+        for (int i = 0; i < 6; i++) {
             /*
            length of string should increase two digits for each fractional # of digits in lat & lon
            0 (133 deg 47' 15" W, 73 deg 17' 33" S) @ 733484m
@@ -168,17 +169,17 @@ public class TestGeodetic3DPoint extends TestCase {
     }
 
     private static Geodetic2DPoint makePoint(double lon, double lat, double elev) {
-		return new Geodetic3DPoint(
-				new Longitude(lon, Angle.DEGREES),
-				new Latitude(lat, Angle.DEGREES),
-				elev);
-	}
+        return new Geodetic3DPoint(
+                new Longitude(lon, Angle.DEGREES),
+                new Latitude(lat, Angle.DEGREES),
+                elev);
+    }
 
-	private static Geodetic2DPoint makePoint(double lon, double lat) {
-		return new Geodetic2DPoint(
-				new Longitude(lon, Angle.DEGREES),
-				new Latitude(lat, Angle.DEGREES));
-	}
+    private static Geodetic2DPoint makePoint(double lon, double lat) {
+        return new Geodetic2DPoint(
+                new Longitude(lon, Angle.DEGREES),
+                new Latitude(lat, Angle.DEGREES));
+    }
 
     /**
      * Main method for running class tests.

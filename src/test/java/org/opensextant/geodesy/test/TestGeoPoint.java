@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 import org.opensextant.geodesy.*;
+import static org.junit.Assert.assertNotEquals;
 
 public class TestGeoPoint extends TestCase {
 
@@ -77,21 +78,21 @@ public class TestGeoPoint extends TestCase {
         assertEquals(ellip, f.getEllipsoid());
     }
 
-	public void testBadReference() {
-		Ellipsoid ellip = null;
-		try {
-			new FrameOfReference(ellip);
-			fail("Expected NullPointerException");
-		} catch(NullPointerException npe) {
-			// expected
-		}
-		try {
-			new FrameOfReference(ellip, randomGeodetic3DPoint(r));
-			fail("Expected NullPointerException");
-		} catch(NullPointerException npe) {
-			// expected
-		}
-	}
+    public void testBadReference() {
+        Ellipsoid ellip = null;
+        try {
+            new FrameOfReference(ellip);
+            fail("Expected NullPointerException");
+        } catch (NullPointerException npe) {
+            // expected
+        }
+        try {
+            new FrameOfReference(ellip, randomGeodetic3DPoint(r));
+            fail("Expected NullPointerException");
+        } catch (NullPointerException npe) {
+            // expected
+        }
+    }
 
     /**
      * This method performs format conversions with string constructors in degrees and dms
@@ -150,19 +151,19 @@ public class TestGeoPoint extends TestCase {
     private final Geodetic2DPoint b = new Geodetic2DPoint(new Longitude(-1), new Latitude(1));
     private final Geodetic2DPoint c = new Geodetic2DPoint(new Longitude(-1.001), new Latitude(1));
 
-	public void testLatLonAngle() {
-		Latitude lat = new Latitude(new Angle());
-		Longitude lon = new Longitude(new Angle());
-		Geodetic2DPoint a = new Geodetic2DPoint(lon, lat);
-		Geodetic2DPoint b = new Geodetic2DPoint( new Longitude(new Angle(0, Angle.DEGREES)),
-				new Latitude(new Angle(0, Angle.DEGREES)));
-		assertEquals(a, b);
-	}
+    public void testLatLonAngle() {
+        Latitude lat = new Latitude(new Angle());
+        Longitude lon = new Longitude(new Angle());
+        Geodetic2DPoint a = new Geodetic2DPoint(lon, lat);
+        Geodetic2DPoint b = new Geodetic2DPoint(new Longitude(new Angle(0, Angle.DEGREES)),
+                new Latitude(new Angle(0, Angle.DEGREES)));
+        assertEquals(a, b);
+    }
 
     public void testEquals() {
         // test equality with known geo-points
         assertEquals(a, b);
-        assertFalse(a.equals(c));
+        assertNotEquals(a, c);
 
         Geodetic2DPoint a2 = new Geodetic2DPoint(new Longitude(a.getLongitude().inRadians()),
                 new Latitude(a.getLatitude().inRadians()));
@@ -177,7 +178,7 @@ public class TestGeoPoint extends TestCase {
 
     public void testNullCompare() {
         Geodetic2DPoint other = null;
-        assertFalse(a.equals(other));
+        assertNotEquals(a, other);
     }
 
     public void testHashCode() {

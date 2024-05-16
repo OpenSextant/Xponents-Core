@@ -90,7 +90,7 @@ public class TestTransverseMercator extends TestCase {
             p1 = new Geodetic2DPoint(lon, lat);
             en = tm.toTransverseMercator(lon, lat);
             p2 = tm.toGeodetic(en.getEasting(), en.getNorthing());
-			assertEquals("Geodetic2DPoint.toString()", p1.toString(fractDig), p2.toString(fractDig));
+            assertEquals("Geodetic2DPoint.toString()", p1.toString(fractDig), p2.toString(fractDig));
         }
 
     }

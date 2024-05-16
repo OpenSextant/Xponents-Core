@@ -24,37 +24,37 @@ import org.opensextant.geodesy.Geodetic2DPoint;
 
 public class TestGeodetic2DCircle extends TestCase {
 
-	private static final double EPSILON = 1E-5;
+    private static final double EPSILON = 1E-5;
 
-	public void testCreation() {
-		Geodetic2DCircle circle = new Geodetic2DCircle();
-		Geodetic2DPoint cp = circle.getCenter();
-		assertNotNull(cp);
+    public void testCreation() {
+        Geodetic2DCircle circle = new Geodetic2DCircle();
+        Geodetic2DPoint cp = circle.getCenter();
+        assertNotNull(cp);
 
-		Geodetic2DPoint boston =
+        Geodetic2DPoint boston =
                 new Geodetic2DPoint("42\u00B0 22' 11.77\" N, 71\u00B0 1' 40.30\" W");
 
-		Geodetic2DCircle geo = new Geodetic2DCircle(boston, 100);
-		assertEquals(boston, geo.getCenter());
-		assertEquals(100.0, geo.getRadius(), EPSILON);
-		assertFalse(circle.equals(geo));
+        Geodetic2DCircle geo = new Geodetic2DCircle(boston, 100);
+        assertEquals(boston, geo.getCenter());
+        assertEquals(100.0, geo.getRadius(), EPSILON);
+        assertFalse(circle.equals(geo));
 
-		Geodetic2DCircle geo2 = new Geodetic2DCircle(boston, 100.0);
-		assertEquals(geo, geo2);
-		assertEquals(geo.hashCode(), geo2.hashCode());
+        Geodetic2DCircle geo2 = new Geodetic2DCircle(boston, 100.0);
+        assertEquals(geo, geo2);
+        assertEquals(geo.hashCode(), geo2.hashCode());
 
-		int count = 0;
-		for (Geodetic2DPoint pt : geo.boundary(8)) {
-			assertNotNull(pt);
-			count++;
-		}
-		assertEquals(8, count);
-	}
+        int count = 0;
+        for (Geodetic2DPoint pt : geo.boundary(8)) {
+            assertNotNull(pt);
+            count++;
+        }
+        assertEquals(8, count);
+    }
 
-	public void testNullCircleCompare() {
-		Geodetic2DCircle circle = new Geodetic2DCircle();
-		Geodetic2DCircle other = null;
-		assertFalse(circle.equals(other));
-	}
-	
+    public void testNullCircleCompare() {
+        Geodetic2DCircle circle = new Geodetic2DCircle();
+        Geodetic2DCircle other = null;
+        assertFalse(circle.equals(other));
+    }
+
 }

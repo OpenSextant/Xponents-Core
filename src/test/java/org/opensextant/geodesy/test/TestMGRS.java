@@ -34,9 +34,9 @@ public class TestMGRS {
 
     private final static String MGRS_washington_monument = "18SUJ2348306479";
 
-	private static final Latitude NORTH_POLE = new Latitude(+90.0, Angle.DEGREES);
-	private static final Latitude SOUTH_POLE = new Latitude(-90.0, Angle.DEGREES);
-	private static final Longitude PRIME_MERIDIAN = new Longitude(0.0, Angle.DEGREES);
+    private static final Latitude NORTH_POLE = new Latitude(+90.0, Angle.DEGREES);
+    private static final Latitude SOUTH_POLE = new Latitude(-90.0, Angle.DEGREES);
+    private static final Longitude PRIME_MERIDIAN = new Longitude(0.0, Angle.DEGREES);
 
     /**
      * This method does an exhaustive test of possible MGRS square values
@@ -58,7 +58,7 @@ public class TestMGRS {
                         try {
                             // UTM version has lonZone
                             total++;
-                            ms = "" + lonZone + latBand + xSquare + ySquare;
+                            ms = String.valueOf(lonZone) + latBand + xSquare + ySquare;
                             new MGRS(ms);
                             valid++;
                         } catch (Exception ex) {
@@ -79,14 +79,14 @@ public class TestMGRS {
         valid = 0;
         total = 0;
         // UPS MGRS only valid for latBand with A,B,Y,Z
-        char[] latBands = { 'A','B','Y','Z' };
+        char[] latBands = {'A', 'B', 'Y', 'Z'};
         for (int latBand = 0; latBand < 4; latBand++) {
             for (char xSquare = 'A'; xSquare <= 'Z'; xSquare++) {
                 for (char ySquare = 'A'; ySquare <= 'Z'; ySquare++) {
                     try {
                         // UPS version has no lonZone
                         total++;
-                        ms = "" + latBands[latBand] + xSquare + ySquare;
+                        ms = String.valueOf(latBands[latBand]) + xSquare + ySquare;
                         new MGRS(ms);
                         valid++;
                     } catch (Exception ex) {
@@ -105,9 +105,9 @@ public class TestMGRS {
 
     @Test
     public void testGeodetic2DPoint() {
-	MGRS mgrs = new MGRS(new Geodetic2DPoint()); // 31NAA6602100000
-	Assert.assertEquals(mgrs.toString(2), "31NAA6600");
-   }
+        MGRS mgrs = new MGRS(new Geodetic2DPoint()); // 31NAA6602100000
+        Assert.assertEquals(mgrs.toString(2), "31NAA6600");
+    }
 
     /**
      * This method generates a random sample of Geodetic points, converting them to MGRS
@@ -132,41 +132,41 @@ public class TestMGRS {
         Assert.assertFalse(mgrs.equals(other));
     }
 
-	@Test
-	public void testMgrsAtPoles() {
-		Geodetic2DPoint northPole = new Geodetic2DPoint(PRIME_MERIDIAN, NORTH_POLE);
-		MGRS mgrs = new MGRS(northPole);
-		Assert.assertEquals("ZAH0000", mgrs.toString(2));
-		Geodetic2DPoint southPole = new Geodetic2DPoint(PRIME_MERIDIAN, SOUTH_POLE);
-		mgrs = new MGRS(southPole);
-		// System.out.println(" -> " + mgrs.toString(2));
-		Assert.assertEquals("BAN0000", mgrs.toString(2));
-	}
+    @Test
+    public void testMgrsAtPoles() {
+        Geodetic2DPoint northPole = new Geodetic2DPoint(PRIME_MERIDIAN, NORTH_POLE);
+        MGRS mgrs = new MGRS(northPole);
+        Assert.assertEquals("ZAH0000", mgrs.toString(2));
+        Geodetic2DPoint southPole = new Geodetic2DPoint(PRIME_MERIDIAN, SOUTH_POLE);
+        mgrs = new MGRS(southPole);
+        // System.out.println(" -> " + mgrs.toString(2));
+        Assert.assertEquals("BAN0000", mgrs.toString(2));
+    }
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMgrsAtPoleNonZeroLon() {
-		// java.lang.IllegalArgumentException: Longitude should be zero at a Pole, lon: -77.03524166666666
-		Geodetic2DPoint northPole = new Geodetic2DPoint(
-			new Longitude(-77, 2, 6.87), NORTH_POLE);
-		new MGRS(northPole); // must throw exception
-	}
+    @Test(expected = IllegalArgumentException.class)
+    public void testMgrsAtPoleNonZeroLon() {
+        // java.lang.IllegalArgumentException: Longitude should be zero at a Pole, lon: -77.03524166666666
+        Geodetic2DPoint northPole = new Geodetic2DPoint(
+                new Longitude(-77, 2, 6.87), NORTH_POLE);
+        new MGRS(northPole); // must throw exception
+    }
 
-	@Test
-	public void testMgrsInvalidPrecision() {
-		MGRS mgrs = new MGRS(MGRS_washington_monument);
-		try {
-			mgrs.toString(6);
-			Assert.fail("Expected exception: java.lang.IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
-			// expected
-		}
-		try {
-			mgrs.toString(-1);
-			Assert.fail("Expected exception: java.lang.IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
-			// expected
-		}
-	}
+    @Test
+    public void testMgrsInvalidPrecision() {
+        MGRS mgrs = new MGRS(MGRS_washington_monument);
+        try {
+            mgrs.toString(6);
+            Assert.fail("Expected exception: java.lang.IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+        try {
+            mgrs.toString(-1);
+            Assert.fail("Expected exception: java.lang.IllegalArgumentException");
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+    }
 
     /**
      * This method is used to test some specific landmark points around the globe
@@ -248,23 +248,23 @@ public class TestMGRS {
         FrameOfReference f = new FrameOfReference();
         for (int i = 0; i < mArray.length; i++) {
             Assert.assertTrue(f.proximallyEquals(new MGRS(mArray[i]).toGeodetic2DPoint(), gArray[i]));
-//            String ms = mArray[i];
-//            MGRS mc = new MGRS(ms);
-//            Geodetic2DPoint gc = mc.getGeodetic();
-//            System.out.println(ms + " -> " + gc.toString(2));
-//
-//            gc = gArray[i];
-//            mc = new MGRS(gc);
-//            System.out.println(mc + " <- " + gc.toString(2));
-//            System.out.println();
+            //            String ms = mArray[i];
+            //            MGRS mc = new MGRS(ms);
+            //            Geodetic2DPoint gc = mc.getGeodetic();
+            //            System.out.println(ms + " -> " + gc.toString(2));
+            //
+            //            gc = gArray[i];
+            //            mc = new MGRS(gc);
+            //            System.out.println(mc + " <- " + gc.toString(2));
+            //            System.out.println();
         }
     }
 
     @Test
     public void testBadCoords() {
         String[] coords = {
-                null,	  // null value for MGRS String is invalid
-                "",	  // empty value for MGRS String is invalid
+                null,      // null value for MGRS String is invalid
+                "",      // empty value for MGRS String is invalid
                 "11",     // MGRS String parse error, string was entirely numeric
                 "999AA",  // MGRS String parse error, 3 digit number '999' is too large for UTM longitudinal zone
                 "1CD",    // MGRS String parse error, expecting 2 alpha characters for MGRS square, found only one, or end of string: D
@@ -276,7 +276,7 @@ public class TestMGRS {
                 "31UDQ482521193",     // Length of easting/northing values was odd: 9: 482521193
                 "31UDQ482521193800",  // Length of easting/northing values exceeded 10: 12: 482521193800
                 "8LMS 36294 99126",   // MGRS northing out of range for square identifier 'S' in longitudinal zone 8
-                "ZOH",	// First letter of MGRS square identifier ('O') is invalid for UPS N Polar Region
+                "ZOH",    // First letter of MGRS square identifier ('O') is invalid for UPS N Polar Region
                 "ZJO"   // Second letter of MGRS square identifier ('O') is invalid for UPS N Polar Region
         };
         for (String coord : coords) {
@@ -397,7 +397,7 @@ public class TestMGRS {
         // test decreasing precision/increasing grid range from 18SUJ2348306479 (precision=5) to 18SUJ23 (precision=1)
         CharSequence seq = MGRS_washington_monument;
         double prev = 0;
-        for (int i = 0; ; i++ ) {
+        for (int i = 0; ; i++) {
             MGRS mgrs = new MGRS(seq);
             final Geodetic2DBounds bbox = mgrs.getBoundingBox();
             new MGRS(bbox);
