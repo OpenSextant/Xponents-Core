@@ -29,7 +29,11 @@ fi
 mkdir -p $RELEASE
 
 msg "Prepare Java API"
-mvn clean install
+# Not for build.  Build ahead of time. This just copies
+# mvn clean install
+if [ -d ./lib ] ; then
+  rm -f ./lib/*
+fi
 mvn dependency:copy-dependencies
 cp target/*jar ./lib
 
