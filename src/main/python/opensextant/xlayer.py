@@ -57,7 +57,7 @@ class XlayerClient:
             return response.raise_for_status()
         return True
 
-    def process(self, docid, text, lang=None, features=["geo"], timeout=10,
+    def process(self, docid, text, lang=None, features=["geo"], timeout=10, minlen=-1,
                 preferred_countries=None, preferred_locations=None):
         """
         Process text, extracting some entities
@@ -93,6 +93,8 @@ class XlayerClient:
         :param features: list of geo OR [places, coordinates, countries], orgs, persons, patterns, taxons
         :param timeout: default to 10 seconds; If you think your processing takes longer,
                  adjust if you see exceptions.
+        :param minlen: minimum length of matches that are unqualified. To reduce noise in geotags. Server has a default
+            of 4 chars for general purpose noise filtering.
         :param preferred_countries: Array of country codes representing those which are preferred fall backs when
             there are ambiguous location names.
         :param preferred_locations:  Array of geohash representing general area of desired preferred matches
@@ -109,6 +111,8 @@ class XlayerClient:
             json_request['preferred_locations'] = preferred_locations
         if lang:
             json_request['lang'] = lang
+        if minlen and int(minlen) > 0:
+            json_request['minlen'] = minlen
 
         response = requests.post(self.server, json=json_request, timeout=timeout)
         if response.status_code != 200:

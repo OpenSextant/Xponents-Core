@@ -80,6 +80,16 @@ public class Parameters extends java.util.Properties {
     public boolean resolve_localities = false;
 
     /**
+     * length filter that applies to:
+     * - General language matches (that is if lang=ar or lang=cjk is not in scope)
+     * - Match text remains unassociated or unqualified by other mentions, e.g. "NM" bare is filtered out
+     *    unless it is part of "Albuequerque, NM".
+     *
+     * Default minimum len of 4 represents a good general search for names.
+     */
+    public int minimum_tag_len = 4;
+
+    /**
      * By default Country Names will not be included in GIS products
      * They should appear in CSV, though.
      */
