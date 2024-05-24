@@ -531,6 +531,7 @@ class PatternExtractor(Extractor):
         test_results = []
         for t in self.pattern_manager.test_cases:
             expect_valid_match = "FAIL" not in t.text
+            print("Test", t.family, t.text)
             output1 = self.extract_patterns(t.text, features=[t.family])
 
             output = []
