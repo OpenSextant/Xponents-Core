@@ -119,9 +119,10 @@ class Hemisphere:
 class DMSOrdinate:
     SYMBOLS = {"°", "º", "'", "\"", ":", "lat", "lon", "geo", "coord", "deg"}
 
-    def __init__(self, axis: str, text: str, slots=None):
+    def __init__(self, axis: str, text: str, fam: str, slots=None):
         self.axis = axis
         self.text = text
+        self.pattern_family = fam
         self.slots = slots
         self.degrees = None
         self.min = None
@@ -134,7 +135,7 @@ class DMSOrdinate:
         self.normalize()
 
     def is_valid(self):
-        if not self.degrees:
+        if self.degrees is None:
             return False
         # Must have degrees, in range for the axis
         if self.axis == "lat":
@@ -144,9 +145,9 @@ class DMSOrdinate:
             if not -180 < self.degrees < 180:
                 return False
         # Min and Secs must be in range if specified
-        if self.min and not 0 < self.min < 60:
+        if self.min is not None and not 0 <= self.min < 60:
             return False
-        if self.seconds and not 0 < self.seconds < 60:
+        if self.seconds is not None and not 0 <= self.seconds < 60:
             return False
 
         return True
@@ -216,6 +217,14 @@ class DMSOrdinate:
         """
         Fields or slots are named xxxLatxx or xxxLonxx
         """
+        if self.pattern_family == "DMS":
+            min_sec_sep = self.slots.get(f"ms{axis}Sep")
+            deg_min_sep = self.slots.get(f"dm{axis}Sep")
+            if min_sec_sep and deg_min_sep and min_sec_sep == "." and min_sec_sep != deg_min_sep:
+                # valid coordinate, but separators like "DD MM.ss" suggest more DM pattern
+                #                      whereas          "DD.MM.SS" with consistent separators is DMS.
+                return
+
         # DEGREES
         deg = self.get_int(f"deg{axis}", "deg")
         deg2 = self.get_int(f"dmsDeg{axis}", "deg")
@@ -310,6 +319,7 @@ class GeocoordMatch(PatternMatch):
         self.lat_ordinate = None
         self.lon_ordinate = None
         self.filter = None
+        self.pattern_family = self.pattern_id.split("-", 1)[0]
 
     def __str__(self):
         return f"{self.text}"
@@ -361,10 +371,11 @@ class MGRSFilter(GeocoordFilter):
         #    - is not a recent date;
         #    - is not a rate ('NNN per LB');
         #    - is not time with 'sec'
+        # Lexical filters:
         if not mgrs.is_valid:
+            # parsed earlier as invalid.
             return True, "invalid"
 
-        # Lexical filters:
         if not (mgrs.text.isupper() and len(mgrs.text.replace(" ", "")) > 6):
             return True, "lexical"
         parts = set(mgrs.text.split())
@@ -405,18 +416,20 @@ class DMSFilter(GeocoordFilter):
         Easy filter -- if puncutation matches, this is an easy pattern to ignore.
         :return: True if filtered out, false positive.
         """
-        if not dms.is_valid:
-            return True, "invalid"
-        if dms.text[0].isalpha():
+        if dms.is_valid:
+            if dms.text[0].isalpha():
+                return False, None
+            for fmt in self.date_formats:
+                try:
+                    dt = arrow.get(dms.text, fmt)
+                    # Recency matters not.  Tests are literal date formats
+                    return True, "date"
+                except Exception as err:
+                    pass
+            # Not filtered. Is valid.
             return False, None
-        for fmt in self.date_formats:
-            try:
-                dt = arrow.get(dms.text, fmt)
-                # Recency matters not.  Tests are literal date formats
-                return True, "date"
-            except Exception as err:
-                pass
-        return False, None
+        # Filter out. invalid.
+        return True, "invalid"
 
 
 mgrs_filter = MGRSFilter()
@@ -524,8 +537,8 @@ class DegMinMatch(GeocoordMatch):
         #     < hemiLonPre >\s? < degLon > < dmLonSep >\s? < minLon > < fractMinLon >? < msLonSep >?
 
         # TODO: conditions that invalidate this pattern?
-        self.lat_ordinate = DMSOrdinate("lat", self.text, slots=self.attributes())
-        self.lon_ordinate = DMSOrdinate("lon", self.text, slots=self.attributes())
+        self.lat_ordinate = DMSOrdinate("lat", self.text, self.pattern_family, slots=self.attributes())
+        self.lon_ordinate = DMSOrdinate("lon", self.text, self.pattern_family, slots=self.attributes())
         self._make_coordinate()
         self.validate()
 
@@ -537,8 +550,8 @@ class DegMinSecMatch(GeocoordMatch):
 
     def normalize(self):
         GeocoordMatch.normalize(self)
-        self.lat_ordinate = DMSOrdinate("lat", self.text, slots=self.attributes())
-        self.lon_ordinate = DMSOrdinate("lon", self.text, slots=self.attributes())
+        self.lat_ordinate = DMSOrdinate("lat", self.text, self.pattern_family, slots=self.attributes())
+        self.lon_ordinate = DMSOrdinate("lon", self.text, self.pattern_family, slots=self.attributes())
         self._make_coordinate()
         self.validate()
 
@@ -571,7 +584,7 @@ class DecimalDegMatch(GeocoordMatch):
 
     def normalize(self):
         GeocoordMatch.normalize(self)
-        self.lat_ordinate = DMSOrdinate("lat", self.text, slots=self.attributes())
-        self.lon_ordinate = DMSOrdinate("lon", self.text, slots=self.attributes())
+        self.lat_ordinate = DMSOrdinate("lat", self.text, self.pattern_family, slots=self.attributes())
+        self.lon_ordinate = DMSOrdinate("lon", self.text, self.pattern_family, slots=self.attributes())
         self._make_coordinate()
         self.validate()
