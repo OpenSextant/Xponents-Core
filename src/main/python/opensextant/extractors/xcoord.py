@@ -61,6 +61,17 @@ def hemisphere_factor(sym: str) -> int:
     return HEMISPHERES.get(None)
 
 
+def one_value(*args):
+    """
+    :param args:
+    :return: first non-null value.
+    """
+    for val in args:
+        if val is not None:
+            return val
+    return None
+
+
 class Hemisphere:
     def __init__(self, axis, slots=None):
         self.axis = axis
@@ -180,17 +191,18 @@ class DMSOrdinate:
     def decimal(self):
         pol = 1
         if self.hemi:
+            # Validity check of presence of Hemisphere symbol is separate.
             pol = self.hemi.polarity
             if not pol:
                 raise Exception("logic error - hemisphere was not resolved")
 
-        if self.seconds and self.min and self.degrees:
+        if self.seconds is not None and self.min is not None and self.degrees is not None:
             if self.seconds < 60:
                 return pol * (self.degrees + self.min / 60 + self.seconds / 3600)
-        if self.min and self.degrees:
+        if self.min is not None and self.degrees is not None:
             if self.min < 60:
                 return pol * (self.degrees + self.min / 60)
-        if self.degrees:
+        if self.degrees is not None:
             return pol * self.degrees
         return None
 
@@ -208,10 +220,10 @@ class DMSOrdinate:
         deg = self.get_int(f"deg{axis}", "deg")
         deg2 = self.get_int(f"dmsDeg{axis}", "deg")
         deg3 = self.get_decimal(f"decDeg{axis}", "deg")
-        self.degrees = deg or deg2 or deg3
-        if self.degrees:
+        self.degrees = one_value(deg, deg2, deg3)
+        if self.degrees is not None:
             self.specificity = Specificity.DEG
-            if deg3:
+            if deg3 is not None:
                 self.specificity = Specificity.SUBDEG
         else:
             return
@@ -222,17 +234,18 @@ class DMSOrdinate:
         minutes3 = self.get_decimal(f"decMin{axis}", "min")
         mindash = self.get_decimal(f"decMin{axis}3", "min")
 
-        self.min = minutes or minutes2 or minutes3 or mindash
-        if self.min:
+        self.min = one_value(minutes, minutes2, minutes3, mindash)
+        if self.min is not None:
             self.specificity = Specificity.MINUTE
 
             min_fract = self.get_fractional(f"fractMin{axis}", "fmin")
             min_fract2 = self.get_fractional(f"fractMin{axis}3", "fmin")
             # variation 2, is a 3-digit or longer fraction
 
-            if min_fract or min_fract2:
+            fmin = one_value(min_fract, min_fract2)
+            if fmin is not None:
                 self.specificity = Specificity.SUBMINUTE
-                self.min += min_fract or min_fract2
+                self.min += fmin
 
         else:
             return
@@ -240,15 +253,16 @@ class DMSOrdinate:
         # SECONDS
         sec = self.get_int(f"sec{axis}", "sec")
         sec2 = self.get_int(f"dmsSec{axis}", "sec")
-        self.seconds = sec or sec2
-        if self.seconds:
+        self.seconds = one_value(sec, sec2)
+        if self.seconds is not None:
             self.specificity = Specificity.SECOND
 
             fsec = self.get_fractional(f"fractSec{axis}", "fsec")
             fsec2 = self.get_fractional(f"fractSec{axis}Opt", "fsec")
-            if fsec or fsec2:
+            fseconds = one_value(fsec, fsec2)
+            if fseconds is not None:
                 self.specificity = Specificity.SUBSECOND
-                self.seconds += fsec or fsec2
+                self.seconds += fseconds
         return
 
     def get_int(self, f, fnorm):
@@ -330,11 +344,12 @@ class GeocoordFilter:
 class MGRSFilter(GeocoordFilter):
     def __init__(self):
         GeocoordFilter.__init__(self)
-        self.date_formats = ["DDMMMYYYY", "DMMMYYHHmm", "DDMMMYYHHmm", "DMMMYY", "HHZZZYYYY"]
+        self.date_formats = ["DDMMMYYYY", "DMMMYYHHmm", "DDMMMYYHHmm", "DDMMMYY", "DMMMYY", "HHZZZYYYY"]
         self.sequences = ["1234", "123456", "12345678", "1234567890"]
         self.today = arrow.utcnow()
         self.YEAR = self.today.date().year
         self.YY = self.YEAR - 2000
+        self.RECENT_YEAR_THRESHOLD = 30
 
     def filter_out(self, mgrs: GeocoordMatch) -> tuple:
         """
@@ -346,6 +361,8 @@ class MGRSFilter(GeocoordFilter):
         #    - is not a recent date;
         #    - is not a rate ('NNN per LB');
         #    - is not time with 'sec'
+        if not mgrs.is_valid:
+            return True, "invalid"
 
         # Lexical filters:
         if not (mgrs.text.isupper() and len(mgrs.text.replace(" ", "")) > 6):
@@ -358,18 +375,24 @@ class MGRSFilter(GeocoordFilter):
                 return True, "digit-seq"
 
         # Date Filter
-        date_test = mgrs.textnorm[0:10]
         for fmt in self.date_formats:
+            fmtlen = len(fmt)
+            date_test = mgrs.textnorm[0:fmtlen]
             try:
                 dt = arrow.get(date_test, fmt)
-                recent_year = abs(dt.date().year - self.YEAR) < 25
-                if recent_year:
+                if self._is_recent(dt):
                     return True, "date"
             except Exception as parse_err:
                 pass
 
         # Not filtered out
         return False, None
+
+    def _is_recent(self, dt: arrow):
+        """
+        checks if a year slot represents a recent YYYY or YY year.
+        """
+        return abs(dt.date().year - self.YEAR) <= self.RECENT_YEAR_THRESHOLD
 
 
 class DMSFilter(GeocoordFilter):
@@ -382,11 +405,14 @@ class DMSFilter(GeocoordFilter):
         Easy filter -- if puncutation matches, this is an easy pattern to ignore.
         :return: True if filtered out, false positive.
         """
+        if not dms.is_valid:
+            return True, "invalid"
         if dms.text[0].isalpha():
             return False, None
         for fmt in self.date_formats:
             try:
                 dt = arrow.get(dms.text, fmt)
+                # Recency matters not.  Tests are literal date formats
                 return True, "date"
             except Exception as err:
                 pass
@@ -450,20 +476,20 @@ class UTMMatch(GeocoordMatch):
         z1 = slots.get("UTMZoneZZ")  # 0-5\d
         z2 = slots.get("UTMZoneZ")  # \d
 
-        ZZ = int(z or z1 or z2)
-        band = slots.get("UTMBand")
-        if not band:
-            return
+        try:
+            ZZ = int(one_value(z, z1, z2))
+            band = slots.get("UTMBand")
+            if not band:
+                return
 
-        hemi = band[0]
-        e = slots.get("UTMEasting")
-        n = slots.get("UTMNorthing")
-        if e and n:
-            try:
+            hemi = band[0]
+            e = slots.get("UTMEasting")
+            n = slots.get("UTMNorthing")
+            if e and n:
                 self.geodetic = Utm(zone=ZZ, hemisphere=hemi, band=band, easting=int(e), northing=int(n))
                 self._make_coordinate()
-            except Exception as err:
-                self.parsing_err = str(err)
+        except Exception as err:
+            self.parsing_err = str(err)
 
 
 class DegMinMatch(GeocoordMatch):
@@ -537,7 +563,7 @@ class DecimalDegMatch(GeocoordMatch):
             return
         lath = self.lat_ordinate.hemi
         lonh = self.lon_ordinate.hemi
-        valid_hemi =  lath and lonh and lath.is_alpha() and lonh.is_alpha()
+        valid_hemi = lath and lonh and lath.is_alpha() and lonh.is_alpha()
         valid_sym = self.lat_ordinate.has_symbols() or self.lon_ordinate.has_symbols()
         self.is_valid = valid_hemi or valid_sym
 
