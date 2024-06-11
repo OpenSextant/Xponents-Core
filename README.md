@@ -1,6 +1,6 @@
 # Xponents-Core
 NOTE: In 2024 this API needed to split off from the evergrowing SDK project, `Xponents/`. 
-This was hosted at `./Xponents/Core`, but is now its own repo.  Regarding documentation in [./doc](./doc), there are many sections devoted to the Java API extractors and utilities.  The consolidated documentation that covers the Java and Python libraries and examples is on its way summer of 2024.  Ask for help using the [issues](./issues) tab. Thanks.
+This was hosted at `./Xponents/Core`, but is now its own repo.  Regarding documentation in [./doc](./doc), there are many sections devoted to the Java API extractors and utilities.  The consolidated documentation that covers the Java and Python libraries and examples is on its way summer of 2024.  Ask for help using the [issues](https://github.com/OpenSextant/Xponents-Core/issues) tab. Thanks.
 
 Xponents is all about geography -- and many things related to it. This API provides
 utilities and data classes for the foundational reference data:
