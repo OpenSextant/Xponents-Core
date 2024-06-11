@@ -1,5 +1,6 @@
 #!/bin/bash
 
+PYVER=1.6
 
 msg(){
   echo
@@ -23,7 +24,7 @@ fi
 
 msg "Install Python resources"
 pip3 install -U --target ../piplib lxml bs4 arrow requests pyshp pycountry \
-  ./src/main/python/dist/opensextant-1.5*.tar.gz
+  ./src/main/python/dist/opensextant-${PYVER}*.tar.gz
 
 if [ "$cmd" = "pydoc" ]; then 
   export PYTHONPATH=$PYSRC:$PWD/../piplib
