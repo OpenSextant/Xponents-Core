@@ -1,4 +1,6 @@
 include LICENSE
+# NOTE - all items here are copied from Java src/main/resources (ant script)
+#   except -- *_py.cfg for xtemp and xcoord extractors
 include opensextant/resources/geocoord_patterns_py.cfg
 include opensextant/resources/country-names-2021.csv
 include opensextant/resources/country-names-2015.csv
