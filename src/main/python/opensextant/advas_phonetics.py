@@ -76,7 +76,7 @@ metaphone_table = {
     "gn": "n",
     # "kn":"n",  -- Generalization for 'known' or 'knowles' => 'nwn' or 'nwls'; But not "Ken" or "Kane"=> "kn"
     "pn": "n",
-    "wr": "n",
+    "wr": "r",
     "wh": "w"}
 
 # define standard translation table

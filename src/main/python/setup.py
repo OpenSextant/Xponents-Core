@@ -14,7 +14,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='opensextant',
-    version='1.6.2',
+    version='1.6.3',
 
     description='OpenSextant APIs and Utilities',
     long_description=long_description,
@@ -49,6 +49,7 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11'
+        'Programming Language :: Python :: 3.12'
     ],
 
     # What does your project relate to?
