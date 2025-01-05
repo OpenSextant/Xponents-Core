@@ -128,7 +128,7 @@ def normalize_year(slots):
     is_year = False
     year = INVALID_DATE
     yearyy = slots.get("YEARYY")
-    yy = slots.get("YY")
+    yy = slots.get("YY") or slots.get("YY2")
     try:
         if yy:
             year = int(yy)
@@ -302,6 +302,10 @@ class DateTimeMatch(PatternMatch):
             day = 1
         else:
             resolution = Resolution.DAY
+
+        # Simple february catch:
+        if month == 2 and day > 29:
+            return False
 
         try:
             tz_found = None
