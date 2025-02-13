@@ -1,10 +1,11 @@
 # coding: utf-8
 
 import arrow
-from opensextant import Coordinate
-from opensextant.FlexPat import PatternExtractor, RegexPatternManager, PatternMatch
 from pygeodesy.mgrs import Mgrs
 from pygeodesy.utm import Utm
+
+from opensextant import Coordinate
+from opensextant.FlexPat import PatternExtractor, RegexPatternManager, PatternMatch
 
 
 # History - 2024 may - MCU ported from XCoord Java
@@ -71,6 +72,18 @@ def one_value(*args):
             return val
     return None
 
+
+def is_blank(txt: str):
+    if txt is None:
+        # Sorry -- you have to determine if obj is string or not first. None does not count.
+        return False
+    return txt == '' or txt.strip() == ''
+
+def strip(txt:str):
+    if txt is None:
+        # Sorry -- you have to determine if obj is string or not first. None does not count.
+        return False
+    return txt.strip()
 
 class Hemisphere:
     def __init__(self, axis, slots=None):
@@ -514,11 +527,9 @@ class DegMinMatch(GeocoordMatch):
         slots = self.attributes()
         if self.is_valid:
             # Punct - separators must match for DM  patterns.
-            lat_sep = slots.get("dmLatSep")
-            lon_sep = slots.get("dmLonSep")
-            if (lat_sep and not lon_sep) or (not lat_sep and lon_sep):
-                self.is_valid = False
-            elif lat_sep != lon_sep:
+            lat_sep = strip(slots.get("dmLatSep"))
+            lon_sep = strip(slots.get("dmLonSep"))
+            if (lat_sep or lon_sep) and (lat_sep != lon_sep):
                 self.is_valid = False
 
         # TODO: evaluate other dashes: GeocoordNormalization eval dashes, eval punct
