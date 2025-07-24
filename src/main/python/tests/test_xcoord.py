@@ -9,7 +9,8 @@ for m in matches:
 
 dms = ["'18 51.1S 34 38.8W'",
        "08 00.4S 30 35.2W",   # DM
-       "08.00.4S 30.35.2W"    # DMS pattern
+       "08.00.4S 30.35.2W",    # DMS pattern
+       "08\n00.4S 30 35.2W",
        ]
 for text in dms:
     matches = tester.extract(text)
