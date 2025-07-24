@@ -1142,10 +1142,11 @@ class Language:
     In some situations there are competeing 2-char codes in code books, such as Lib of Congress (LOC)
     """
 
-    def __init__(self, iso3, iso2, nmlist: list):
+    def __init__(self, iso3, iso2, nmlist: list, locale=None):
         self.code_iso3 = iso3
         self.code = iso2
         self.names = nmlist
+        self.locale = locale
         if nmlist:
             if not isinstance(nmlist, list):
                 raise Exception("Name list is a list of names for the language. The first one is the default.")
@@ -1171,6 +1172,7 @@ language_map = {}
 def list_languages():
     """
     List out a flattened list of languages, de-duplicated by ISO2 language ID.
+
     TODO: alternatively list out every language
     :return:
     """
@@ -1191,15 +1193,26 @@ def list_languages():
 
 
 def add_language(lg: Language, override=False):
+    """
+    The language map for ISO 2-alpha and 3-alpha codes should be protected from language IDs that are dialect or locale
+
+    "en" ==> en-au, en-gb, en-us, etc.?  This is ambiguous
+    The reverse is true -- "en-gb" is at least "en" or "eng" english
+
+    :param lg:
+    :param override:
+    :return:
+    """
     if not lg:
         return
 
     codes = []
     if lg.code:
         codes.append(lg.code.lower())
-
     if lg.code_iso3:
         codes.append(lg.code_iso3.lower())
+    if lg.locale:
+        codes.append(lg.locale.lower())
 
     if lg.names:
         for nm in lg.names:
@@ -1211,7 +1224,13 @@ def add_language(lg: Language, override=False):
                 override = True
 
     for k in set(codes):
-        if k in language_map and not override:
+        exists = k in language_map
+
+        # coding rule: 2 or 3 char alpha codes for ISO or Biblio code books are not overriden.
+        if len(k) <= 3 and exists:
+            continue
+
+        if exists and not override:
             raise Exception(f"Forcibly remap language code? {k}")
 
         language_map[k] = lg
@@ -1331,10 +1350,11 @@ def load_languages():
         if iso3 in IGNORE_LANGUAGES:
             continue
 
-        L = Language(lang[0], lang[2], lang_names)
+        iso2=lang[2]
+        L = Language(iso3, iso2, lang_names)
         add_language(L)
         if bib3:
-            L = Language(bib3, lang[2], lang_names)
+            L = Language(bib3, iso2, lang_names)
             add_language(L, override=True)
 
     # Some odd additions -- Bibliographic vs. Terminologic codes may vary.
@@ -1342,20 +1362,22 @@ def load_languages():
     #
     for lg in [Language("fra", "fr", ["French"]),
 
-               Language("zh-cn", "zh", ["Chinese"]),
+               Language("zho", "zh", ["Chinese"], locale="zh-cn"),
 
                Language(None, "zt", ["Traditionl Chinese"]),
-               Language("zh-tw", "zt", ["Traditionl Chinese/Taiwain"]),
+               Language(None, "zt", ["Traditionl Chinese/Taiwain"], locale="zh-tw"),
 
-               Language("fa-AF", "dr", ["Dari", "Afghan Persian"]),
+               Language("prs", "dr", ["Dari", "Afghan Persian"], locale="fa-AF"),
                Language("prs", "dr", ["Dari", "Afghan Persian"]),
 
                Language("eng", "en", ["English"]),
-               Language("en-gb", "en", ["English"]),
-               Language("en-us", "en", ["English"]),
-               Language("en-uk", "en", ["English"]),
-               Language("en-ca", "en", ["English"]),
-               Language("en-au", "en", ["English"])]:
+
+               Language("eng", "en", ["English/British"], locale="en-gb"),
+               Language("eng", "en", ["English/USA"], locale="en-us"),
+               Language("eng", "en", ["English/United Kingdom"], locale="en-uk"),
+               Language("eng", "en", ["English/Canadian"], locale="en-ca"),
+               Language("eng", "en", ["English/Australian"], locale="en-au")]:
+
         add_language(lg, override=True)
 
     __language_map_init = True

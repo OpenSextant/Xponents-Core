@@ -80,7 +80,6 @@ def is_ascii(s):
         pass
     return False
 
-
 def get_text(t):
     """ Default is to return Unicode string from raw data"""
     if isinstance(t, str):
