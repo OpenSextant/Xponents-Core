@@ -369,6 +369,7 @@ class MGRSFilter(GeocoordFilter):
         GeocoordFilter.__init__(self)
         self.date_formats = ["DDMMMYYYY", "DMMMYYHHmm", "DDMMMYYHHmm", "DDMMMYY", "DMMMYY", "HHZZZYYYY"]
         self.sequences = ["1234", "123456", "12345678", "1234567890"]
+        self.stop_terms = { "PER", "SEC", "UTC", "GMT", "GAL"}
         self.today = arrow.utcnow()
         self.YEAR = self.today.date().year
         self.YY = self.YEAR - 2000
@@ -391,9 +392,9 @@ class MGRSFilter(GeocoordFilter):
 
         if not (mgrs.text.isupper() and len(mgrs.text.replace(" ", "")) > 6):
             return True, "lexical"
-        parts = set(mgrs.text.split())
-        if "SEC" in parts or "PER" in parts:
-            return True, "rate"
+        for term in self.stop_terms:
+            if term in mgrs.textnorm:
+                return True, "measure"
         for seq in self.sequences:
             if seq in mgrs.textnorm:
                 return True, "digit-seq"
