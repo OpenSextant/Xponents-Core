@@ -22,7 +22,7 @@ NO_MONTH = -4
 NO_DAY = -5
 
 log = logger_config("INFO", pkg=__name__)
-
+_default_locale = None
 
 def format_date(d):
     if isinstance(d, arrow.Arrow):
@@ -92,26 +92,37 @@ def normalize_month_num(slots: dict):
     return INVALID_DATE
 
 
-def test_european_locale(slots: dict):
+def test_european_locale(slots: dict, locale=None):
     """
 
     :param slots:
     :return:  day, month
     """
-    if "DM1" in slots and "DM2" in slots:
-        # Matched as MDY
-        # But we test if DMY is valid based on values.
-        try:
-            day = int(slots["DM1"])
-            mon = int(slots["DM2"])
+    if not ("DM1" in slots and "DM2" in slots):
+        return None, None
+
+    # Matched as MDY
+    # But we test if DMY is valid based on values.
+    try:
+        day = int(slots["DM1"])
+        mon = int(slots["DM2"])
+        # First pass -- if LOCALE == "euro", then assume pattern matches DAY/MON/YYYY
+        if locale and locale == "euro":
+            if mon <= 12 and  day <= 31:
+                return day, mon
+            else:
+                return -1, -1
+        else:
+            # Otherwise -- this is a test and we're guessing. Only return
+            # a date if date pattern appears to be unambiguous.  03/05   is Mar-5th or May-3rd, for example
             if day > 12 and mon <= 12:
                 # Valid match  31/12/...  new year's eve.
                 return day, mon
             if day > 12 and mon > 12:
                 # Invalid date match for this pattern, e.g., 13/13/, or 30/13/...
                 return -1, -1
-        except:
-            pass
+    except:
+        pass
     return None, None
 
 
@@ -217,11 +228,15 @@ def normalize_time(slots):
 
 
 class XTemporal(PatternExtractor):
-    def __init__(self, cfg="datetime_patterns_py.cfg", debug=False):
+    def __init__(self, cfg="datetime_patterns_py.cfg", debug=False, locale=None):
         """
         :param cfg: patterns config file.
         """
         PatternExtractor.__init__(self, RegexPatternManager(cfg, debug=debug, testing=debug))
+        if locale:
+            global _default_locale
+            _default_locale = locale.lower()
+
         if debug:
             log.setLevel("DEBUG")
 
@@ -237,6 +252,20 @@ class Resolution:
 
 
 class DateTimeMatch(PatternMatch):
+    """
+    DateTimeMatch puts out a matched date with attributes:
+
+        datenorm -- ISO yyyy-mm-dd date
+        epoch    -- seconds from 1970-01-01
+        resolution - D, M, h, m, s
+        locale   -- "north-am" or "euro".
+
+        If locale is set using XTemporal(locale='euro')
+        matching Euro-style dates will be forced as such through out document.
+        When locale is not set, the default is to only use euro locale for dates
+        that are not ambiguous, e.g., 30/05/1977.
+        Ambiguous dates (with no default locale used) are parsed as "north-am".
+    """
     def __init__(self, *args, **kwargs):
         PatternMatch.__init__(self, *args, **kwargs)
         self.case = PatternMatch.LOWER_CASE
@@ -273,7 +302,7 @@ class DateTimeMatch(PatternMatch):
         # resolution = Resolution.YEAR
         day, month = None, None
         if self.pattern_id in {"MDY-01", "MDY-02"}:
-            day, month = test_european_locale(slots) # Uses DM slots only
+            day, month = test_european_locale(slots, _default_locale) # Uses DM slots only
             if day and day < 0:
                 return False
             if day and month:
