@@ -8,25 +8,6 @@ from opensextant import Coordinate
 from opensextant.FlexPat import PatternExtractor, RegexPatternManager, PatternMatch
 
 
-# History - 2024 may - MCU ported from XCoord Java
-#
-#
-# TODO: error "precision" scales
-#       text formatting of normalized coordinate
-#       complete testing
-
-class XCoord(PatternExtractor):
-    """
-    NOTE: a port of XCoord java (org.opensextant.extractors.xcoord, in Xponents-Core)
-    """
-
-    def __init__(self, cfg="geocoord_patterns_py.cfg", debug=False):
-        """
-        :param cfg: patterns config file.
-        """
-        PatternExtractor.__init__(self, RegexPatternManager(cfg, debug=debug, testing=debug))
-
-
 class ResolutionUncertainty:
     UNKNOWN = 100000
     REGIONAL = 50000
@@ -55,6 +36,26 @@ HEMISPHERES = {
     None: 1
 }
 
+default_specificity = Specificity.SUBDEG
+
+
+# History - 2024 may - MCU ported from XCoord Java
+#
+class XCoord(PatternExtractor):
+    """
+    NOTE: a port of XCoord java (org.opensextant.extractors.xcoord, in Xponents-Core)
+    """
+
+    def __init__(self, cfg="geocoord_patterns_py.cfg", debug=False, specificity=Specificity.SUBDEG):
+        """
+        :param cfg: patterns config file.
+        :param specificity: the abstract level of resolution for validating coordinates, e.g., DEGREE, SUB-DEGREE, etc.
+           use Specificity enumeration
+        """
+        PatternExtractor.__init__(self, RegexPatternManager(cfg, debug=debug, testing=debug))
+        global default_specificity
+        default_specificity = specificity
+
 
 def hemisphere_factor(sym: str) -> int:
     if sym:
@@ -79,11 +80,13 @@ def is_blank(txt: str):
         return False
     return txt == '' or txt.strip() == ''
 
-def strip(txt:str):
+
+def strip(txt: str):
     if txt is None:
         # Sorry -- you have to determine if obj is string or not first. None does not count.
         return False
     return txt.strip()
+
 
 class Hemisphere:
     def __init__(self, axis, slots=None):
@@ -178,7 +181,7 @@ class DMSOrdinate:
         return self.specificity == Specificity.SUBSECOND
 
     def has_symbols(self):
-        return len(self.symbols) > 1
+        return len(self.symbols) > 0
 
     def normalize(self):
         """
@@ -327,11 +330,11 @@ class GeocoordMatch(PatternMatch):
         PatternMatch.__init__(self, *args, **kwargs)
         self.case = PatternMatch.UPPER_CASE
         self.geodetic = None
-        self.coordinate = None
-        self.parsing_err = None
-        self.lat_ordinate = None
-        self.lon_ordinate = None
-        self.filter = None
+        self.coordinate: Coordinate = None
+        self.parsing_err: str = None
+        self.lat_ordinate: DMSOrdinate = None
+        self.lon_ordinate: DMSOrdinate = None
+        self.filter: GeocoordFilter = None
         self.pattern_family = self.pattern_id.split("-", 1)[0]
 
     def __str__(self):
@@ -358,6 +361,22 @@ class GeocoordMatch(PatternMatch):
             self.coordinate = Coordinate(None, lat=LL.lat, lon=LL.lon)
             # These are parsed by UTM and MGRS libraries, so coordinate is assumed valid.
 
+    def filter_by_resolution(self):
+        """ Check specificity of ordinates -- as parsed, if LAT or LON has the minimum level of detail
+
+                40N      -- could be "40 North"
+               +40.0000  -- also "40 North", but precision is specified to 4sigfig.
+               +40:00:00 -- well, could also be an hour marker ~ 40 hours
+
+        :return: TRUE if coordinate is specific and resolution is high enough.
+        """
+        if not self.lat_ordinate or not self.lon_ordinate:
+            # If unset, we'll simply filter OUT
+            return False
+        lat_valid = self.lat_ordinate.specificity >= default_specificity
+        lon_valid = self.lon_ordinate.specificity >= default_specificity
+        return lat_valid and lon_valid
+
 
 class GeocoordFilter:
     def filter_out(self, m: GeocoordMatch) -> tuple:
@@ -369,7 +388,9 @@ class MGRSFilter(GeocoordFilter):
         GeocoordFilter.__init__(self)
         self.date_formats = ["DDMMMYYYY", "DMMMYYHHmm", "DDMMMYYHHmm", "DDMMMYY", "DMMMYY", "HHZZZYYYY"]
         self.sequences = ["1234", "123456", "12345678", "1234567890"]
-        self.stop_terms = { "PER", "SEC", "UTC", "GMT", "GAL"}
+        self.stop_terms = {"PER", "SEC", "UTC", "GMT", "GAL", "USC", "CAN",
+                           "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+                           "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"}
         self.today = arrow.utcnow()
         self.YEAR = self.today.date().year
         self.YY = self.YEAR - 2000
@@ -392,6 +413,8 @@ class MGRSFilter(GeocoordFilter):
 
         if not (mgrs.text.isupper() and len(mgrs.text.replace(" ", "")) > 6):
             return True, "lexical"
+        if "\t" in mgrs.text or "\n" in mgrs.text:
+            return True, "format-ws"
         for term in self.stop_terms:
             if term in mgrs.textnorm:
                 return True, "measure"
@@ -430,6 +453,11 @@ class DMSFilter(GeocoordFilter):
         Easy filter -- if puncutation matches, this is an easy pattern to ignore.
         :return: True if filtered out, false positive.
         """
+        if dms.is_valid:
+            if not dms.filter_by_resolution():
+                # Not valid -- or at least not meeting users level of specificity.
+                return True
+
         if dms.is_valid:
             if dms.text[0].isalpha():
                 return False, None
@@ -581,16 +609,18 @@ class DecimalDegMatch(GeocoordMatch):
              55.60, 80.11  -- not valid
              N55.60, W80.11  -- valid
              +55.60, -80.11  -- valid
+             S20 E33         -- not valid, by default looking for sub-degree resolution.
 
         Validate also if the coordinate is a valid range for Lat/Lon.
         """
         if not self.is_valid:
             return
+
         lath = self.lat_ordinate.hemi
         lonh = self.lon_ordinate.hemi
         valid_hemi = lath and lonh and lath.is_alpha() and lonh.is_alpha()
         valid_sym = self.lat_ordinate.has_symbols() or self.lon_ordinate.has_symbols()
-        self.is_valid = valid_hemi or valid_sym
+        self.is_valid = (valid_hemi or valid_sym) and self.filter_by_resolution()
 
         self.filtered_out = not self.is_valid
 
