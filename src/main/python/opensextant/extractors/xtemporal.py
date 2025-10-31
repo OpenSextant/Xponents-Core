@@ -125,8 +125,10 @@ def test_european_locale(slots: dict, locale=None):
         pass
     return None, None
 
+def _get_year(slots:dict) -> str:
+    return slots.get("YEAR") or slots.get("YY") or slots.get("YEARYY") or slots.get("YY2")
 
-def normalize_year(slots):
+def normalize_year(slots) -> int:
     if not slots:
         return INVALID_DATE
 
@@ -301,13 +303,16 @@ class DateTimeMatch(PatternMatch):
 
         # resolution = Resolution.YEAR
         day, month = None, None
+        is_short_mdy = False
         if self.pattern_id in {"MDY-01", "MDY-02"}:
+            is_short_mdy = True
             day, month = test_european_locale(slots, _default_locale) # Uses DM slots only
             if day and day < 0:
                 return False
             if day and month:
                 # Non-zero day/month returned from test
                 self.locale = "euro"
+
         if not month:
             month = normalize_month_num(slots)
         if month <= 0:
@@ -322,6 +327,11 @@ class DateTimeMatch(PatternMatch):
         if sep1 and sep2 and sep1 != sep2:
             return False
 
+        if sep1 == "." and is_short_mdy:
+            year_str = _get_year(slots)
+            if len(year_str) ==2:
+                return False
+            
         if not day:
             day = normalize_day(slots)
         if day == INVALID_DAY:

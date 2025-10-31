@@ -13,7 +13,7 @@ class TestXTemporal(unittest.TestCase):
         euro_tests = [
             ("text text 04/05/2025", "2025-05-04"),
             ("text text 30/05/2025", "2025-05-30"),
-            ("text text 12/05/2025", "2025-05-30"),
+            ("text text 12/05/2025", "2025-05-12"),
             ("text text 12/12/2025", "2025-12-12"),
             ("text text 05/12/2025", "2025-12-05")
         ]
@@ -23,7 +23,7 @@ class TestXTemporal(unittest.TestCase):
                 print(date_match.text, result, "Expected", expected)
                 self.assertEqual(expected, result)
 
-    def run_test(self):
+    def test_full_run(self):
         print("Run Default Tests")
 
         datex = XTemporal(debug=True)
