@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling >= 1.26", "uv_build >= 0.9.5"]
+build-backend = "hatchling.build"
+# build-backend = "uv_build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+only-include = ['opensextant']
+
+[project]
+name = 'opensextant'
+version = '1.7.0'
+description = 'OpenSextant APIs and Utilities'
+requires-python = ">=3.9"
+classifiers = [
+	"Programming Language :: Python :: 3.9",
+	"Programming Language :: Python :: 3.10",
+	"Programming Language :: Python :: 3.11",
+	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
+	"Operating System :: OS Independent",
+]
+keywords = ["geoparsing", "geolocation", "text analysis",
+	"information extraction", "taxonomic tagging", "keyword tagging"]
+
+authors = [
+	{ "name" = "Marc Ubaldino", "email" = "ubaldino@mitre.org" }
+]
+
+license = "Apache-2.0"
+
+dependencies = ['pysolr>=3.9.0', 'chardet>=5.0.0', 'requests', 'arrow>=1.1.0', 'PyGeodesy>=21.3.3']
+
+[project.urls]
+Homepage = "https://opensextant.github.io/Xponents/"
+Repository = "https://github.com/OpenSextant/Xponents"
+Issues = "https://github.com/OpenSextant/Xponents/issues"
