@@ -1364,8 +1364,8 @@ def load_languages():
 
                Language("zho", "zh", ["Chinese"], locale="zh-cn"),
 
-               Language(None, "zt", ["Traditionl Chinese"]),
-               Language(None, "zt", ["Traditionl Chinese/Taiwain"], locale="zh-tw"),
+               Language(None, "zt", ["Traditional Chinese"]),
+               Language(None, "zt", ["Traditional Chinese/Taiwain"], locale="zh-tw"),
 
                Language("prs", "dr", ["Dari", "Afghan Persian"], locale="fa-AF"),
                Language("prs", "dr", ["Dari", "Afghan Persian"]),
