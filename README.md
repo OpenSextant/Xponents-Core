@@ -42,6 +42,9 @@ This is the foundation and utilities for the tagger/geocoder SDK (oensextant-xpo
 1. Setup project.
 
 ```
+  # If using virtual env, activate that before
+  pip install hatch uv
+
   # Set up Core API with independent reference data
   ./setup.sh
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYVER=1.6
+PYVER=1.7
 
 msg(){
   echo
@@ -20,11 +20,12 @@ PYSRC=$PWD/src/main/python
 if [ -d "$PYSRC/dist" ]; then
   rm -f $PYSRC/dist/*
 fi
-(cd $PYSRC  &&  python3.9 ./setup.py sdist)
+#(cd $PYSRC  &&  python3 ./setup.py sdist)
+(cd $PYSRC  &&  hatch build)
 
 msg "Install Python resources"
 pip3 install -U --target ../piplib lxml bs4 arrow requests pyshp pycountry \
-  ./src/main/python/dist/opensextant-${PYVER}*.tar.gz
+  ./src/main/python/dist/opensextant-${PYVER}*whl
 
 if [ "$cmd" = "pydoc" ]; then 
   export PYTHONPATH=$PYSRC:$PWD/../piplib
