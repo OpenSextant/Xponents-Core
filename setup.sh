@@ -20,7 +20,6 @@ PYSRC=$PWD/src/main/python
 if [ -d "$PYSRC/dist" ]; then
   rm -f $PYSRC/dist/*
 fi
-#(cd $PYSRC  &&  python3 ./setup.py sdist)
 (cd $PYSRC  &&  hatch build)
 
 msg "Install Python resources"
