@@ -1369,7 +1369,7 @@ def load_languages():
 
                Language("prs", "dr", ["Dari", "Afghan Persian"], locale="fa-AF"),
                Language("prs", "dr", ["Dari", "Afghan Persian"]),
-
+               Language("fas", "fa", ["Farsi", "Persian"], locale="fa-IR"),
                Language("eng", "en", ["English"]),
 
                Language("eng", "en", ["English/British"], locale="en-gb"),
@@ -1379,5 +1379,6 @@ def load_languages():
                Language("eng", "en", ["English/Australian"], locale="en-au")]:
 
         add_language(lg, override=True)
+
 
     __language_map_init = True

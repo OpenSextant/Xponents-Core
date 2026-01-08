@@ -26,6 +26,7 @@ class TestLangs(unittest.TestCase):
         print("Code for 'FRENCH'", get_lang_code("FRENCH"))
         print("FRA is Euro?", is_lang_euro("FRA"))
         print("ZH-CN Locale is ...?", is_lang_chinese("ZH-CN"))
+        print("Names for Persian", get_language("fas"), get_language("Farsi"))
 
         # No exception thrown.
         self.assertTrue(True)
