@@ -91,6 +91,9 @@ class PatternMatch(TextMatch):
         if self.pattern_id and "-" in self.pattern_id:
             self.variant_id = self.pattern_id.split("-", 1)[1]
 
+    def __str__(self):
+        return f"({self.label}) {self.text}"
+
     def copy_attrs(self, arr):
         """
         Default copy of match group slots.  Does not work for every situation.
