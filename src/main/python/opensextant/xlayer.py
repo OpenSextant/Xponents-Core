@@ -17,6 +17,13 @@ GEOCODINGS = {"geo", "place", "postal", "country", "coord", "coordinate"}
 
 
 class XlayerClient:
+    """
+      Xponents REST client --  low level utility. See also Geotagger class for a better abstraction.
+      ```
+      client = XlayerClient(url)
+      client.process( "paragraph of text...." ) ---> returns list of raw matches, geocoded.
+      ```
+    """
     def __init__(self, server, options=""):
         """
         @param server: URL for the service.   E.g., host:port or 'http://SERVER/xlayer/rest/process'.
@@ -227,7 +234,9 @@ def score_inferences(inf, matches):
 
 class Geotagger:
     """
-    GEOTAGGER REST client
+    GEOTAGGER REST client.  This wrapper around XlayerClient class abstracts alot of the details
+    of calling and parsing the geo-inferencing results from the API server.
+
     """
     ALLOWED_SLOTS = {"site", "city", "admin", "postal", "country"}
 
