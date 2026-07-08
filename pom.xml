@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opensextant</groupId>
   <artifactId>opensextant-xponents-core</artifactId>
-  <version>3.8.1</version>
+  <version>3.8.3</version>
   <packaging>jar</packaging>
   <name>OpenSextant Xponents Core API</name>
   <description>An information extraction toolkit focused on geography and temporal entities</description>
@@ -35,14 +35,14 @@
   </developers>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.17</slf4j.version>
+    <slf4j.version>2.0.18</slf4j.version>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.21.0</version>
+        <version>2.22.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -80,7 +80,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.20</version>
+        <version>1.5.37</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -167,7 +167,7 @@
     <dependency>
       <groupId>org.apache.groovy</groupId>
       <artifactId>groovy</artifactId>
-      <version>4.0.29</version>
+      <version>4.0.32</version>
       <scope>runtime</scope>
     </dependency>
   </dependencies>
