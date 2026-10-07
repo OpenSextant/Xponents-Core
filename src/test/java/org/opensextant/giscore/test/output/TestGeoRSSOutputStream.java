@@ -43,7 +43,7 @@ public class TestGeoRSSOutputStream extends TestGISBase implements IRss {
     }
 
     private void exportRss(File file) throws IOException, XMLStreamException {
-        Namespace NS = Namespace.getNamespace("ext", "http://giscore.mitre.org/ext");
+        Namespace NS = Namespace.getNamespace("ext", "http://giscore.opensextant.org/ext");
         IGISInputStream kis = GISFactory.getInputStream(DocumentType.KML, new FileInputStream(file));
         String name = file.getName();
         int ind = name.lastIndexOf('.');
@@ -57,7 +57,7 @@ public class TestGeoRSSOutputStream extends TestGISBase implements IRss {
 
         Map<String,Object> channelMap = new HashMap<>();
         channelMap.put(TITLE, "Test GeoRSS Feed");
-        channelMap.put(LINK, "http://giscore.mitre.org");
+        channelMap.put(LINK, "http://my-webserver.abcdef.com");
         channelMap.put(DESCRIPTION, "this is a test");
         channelMap.put("test", "this is an extended element"); // uses "ext:" namespace prefix in output
 

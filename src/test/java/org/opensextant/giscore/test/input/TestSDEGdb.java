@@ -25,7 +25,7 @@ public class TestSDEGdb {
 	/* @Test */public void try1() throws Exception {
 		/* not sure this server is actually up and available right now	
 		Properties pset = new Properties();
-		pset.setProperty("SERVER", "arcsrvsde.mitre.org");
+		pset.setProperty("SERVER", "servername-here");
 		pset.setProperty("INSTANCE", "5151");
 		pset.setProperty("USER", "gis_prod");
 		pset.setProperty("PASSWORD", "gis_prodpw");
