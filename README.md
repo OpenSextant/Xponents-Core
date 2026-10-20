@@ -67,7 +67,10 @@ This is the foundation and utilities for the tagger/geocoder SDK (oensextant-xpo
   mvn install
 ```
 
+
 ## Publishing a Release
+
+Consult ./Xponents/BUILD.md for notes on GnuPG setup
 
 Update RELEASE.md, the push the Maven artifacts:
 

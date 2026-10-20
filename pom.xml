@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opensextant</groupId>
   <artifactId>opensextant-xponents-core</artifactId>
-  <version>3.8.3</version>
+  <version>3.8.4</version>
   <packaging>jar</packaging>
   <name>OpenSextant Xponents Core API</name>
   <description>An information extraction toolkit focused on geography and temporal entities</description>
@@ -35,7 +35,7 @@
   </developers>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.18</slf4j.version>
+    <slf4j.version>[2.0.20,2.1.0)</slf4j.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -80,7 +80,7 @@
       <dependency>
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
-        <version>1.5.37</version>
+        <version>1.6.5</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
@@ -208,7 +208,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.4.2</version>
+          <version>3.5.1</version>
           <executions>
             <execution>
               <id>attach-tests</id>
@@ -226,7 +226,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
@@ -243,7 +243,6 @@
           <source>11</source>
           <target>11</target>
           <encoding>UTF-8</encoding>
-          <compilerVersion>11</compilerVersion>
           <compilerArgument>-Xlint:all,-path</compilerArgument>
           <showWarnings>true</showWarnings>
           <showDeprecation>true</showDeprecation>
@@ -386,7 +385,7 @@
           <plugin>
             <groupId>org.sonatype.central</groupId>
             <artifactId>central-publishing-maven-plugin</artifactId>
-            <version>0.9.0</version>
+            <version>0.12.0</version>
             <extensions>true</extensions>
             <configuration>
               <publishingServerId>central</publishingServerId>

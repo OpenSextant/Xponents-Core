@@ -12,7 +12,7 @@ mkdir -p $XP/../dist
 cd $XP
 
 msg "Prepare release"
-VER=3.7
+VER=3.8
 DIST=$XP/../dist
 RELEASE=$DIST/xponents-core-$VER/
 if [ -d $RELEASE ]  ; then
@@ -24,7 +24,7 @@ PYSRC=$PWD/src/main/python
 if [ -d "$PYSRC/dist" ]; then
   rm -f $PYSRC/dist/*
 fi
-(cd $PYSRC  &&  python3.9 ./setup.py sdist)
+(cd $PYSRC  &&  hatch build)
 
 mkdir -p $RELEASE
 
